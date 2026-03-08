@@ -81,8 +81,9 @@ fgseaRes <- fgsea(Mm.H, results2, minSize=25, maxSize = 500)
 
 fgseaRes <-fgseaRes[order(fgseaRes$NES,decreasing=T),]
 head(fgseaRes, 50)
-
+png("FAM_enrch.png")
 plotEnrichment(Mm.H[["HALLMARK_FATTY_ACID_METABOLISM"]],results2) +labs(title="HALLMARK_FATTY_ACID_METABOLISM")
+dev.off()
 
 #etc
 #More analysis approaches can be found
@@ -92,20 +93,23 @@ plotEnrichment(Mm.H[["HALLMARK_FATTY_ACID_METABOLISM"]],results2) +labs(title="H
 toppathwaysup <- fgseaRes[NES>0][head(order(padj), n=10), pathway]
 toppathwaysdown <- fgseaRes[NES<0][head(order(padj), n=10), pathway]
 toppathways <- c(toppathwaysup, rev(toppathwaysdown))
+png("top_enrch.png")
 plotGseaTable(Mm.H[toppathways], results2, fgseaRes, gseaParam=0.5)+labs(title="Top pathways")
-
+dev.off()
 collapsedPathways <- collapsePathways(fgseaRes[order(padj)][padj < 0.05], 
-                                      mm.H, results2)
+                                      Mm.H, results2)
 mainPathways <- fgseaRes[pathway %in% collapsedPathways$mainPathways][
   order(-NES), pathway]
-
-plotGseaTable(mm.H[mainPathways], results2, fgseaRes, 
+png("topcolps_enrch.png")
+plotGseaTable(Mm.H[mainPathways], results2, fgseaRes, 
               gseaParam = 0.5)+labs(title="Top collapsed pathways")
+dev.off()
 
 #barplot of top pathways
 idx_pw <- match(toppathways, fgseaRes$pathway)
 df <- data_frame(x=toppathways, y=fgseaRes$NES[idx_pw])
 df <- df[order(df$y), ]
+png("top_pwbar.png")
 ggplot(df, aes(x=x, y=y))+
   geom_col()+
   labs(
@@ -114,3 +118,5 @@ ggplot(df, aes(x=x, y=y))+
     y="NES"
   )+
   coord_flip()
+dev.off()
+
